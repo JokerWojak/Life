@@ -7,6 +7,7 @@ class Person:
         self.gender = self.generate_gender()
         self.first_name = self.generate_first_name()
         self.last_name = self.generate_last_name()
+        self.age = 0  # Initialize age to 0 upon creation
 
     def generate_gender(self):
         return random.choice(["Male", "Female"])
@@ -22,3 +23,18 @@ class Person:
 
     def create_full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    def to_dict(self):
+        return {
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'age': self.age
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        person = cls()
+        person.first_name = data.get('first_name', '')
+        person.last_name = data.get('last_name', '')
+        person.age = data.get('age', 0)
+        return person

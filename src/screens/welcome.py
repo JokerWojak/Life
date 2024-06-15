@@ -18,6 +18,9 @@ class WelcomeScreen(Screen):
         self.character_label = Label(text='', font_size='20sp', size_hint=(1, None), height=50)
         layout.add_widget(self.character_label)
 
+        self.age_label = Label(text='Age: 0', font_size='20sp', size_hint=(1, None), height=50)
+        layout.add_widget(self.age_label)  # Add age_label to the layout
+
         self.bar_graph = BarGraphWidget(size_hint=(1, 0.6))
         layout.add_widget(self.bar_graph)
 
@@ -40,15 +43,24 @@ class WelcomeScreen(Screen):
         self.load_game()  # Load initial character data on screen creation
 
     def accept_pressed(self, *args):
-        self.save_game()  # Save the current character data
+        # Save the current character data
+        self.save_game()
+
+        # Print statement for debugging
         print("Accept button pressed")
-        game_screen = self.manager.get_screen('game')
-        game_screen.load_game_data()  # Ensure game screen loads the latest data
+
+        # Update the graph with the current data
+        self.update_graph_with_current_data()
+
+        # Switch to the 'game' screen
         self.manager.current = 'game'
 
     def next_pressed(self, *args):
         new_character = Person()
         self.character_label.text = new_character.create_full_name()
+
+        # Update age in UI
+        self.age_label.text = f"Age: {new_character.age}"
 
         new_values = {
             'Health': random.randint(0, 100),
@@ -65,6 +77,7 @@ class WelcomeScreen(Screen):
             save_data = {
                 'first_name': new_character.first_name,
                 'last_name': new_character.last_name,
+                'age': new_character.age,
                 'traits': new_values
             }
         else:
@@ -72,6 +85,7 @@ class WelcomeScreen(Screen):
             save_data = {
                 'first_name': first_name,
                 'last_name': last_name,
+                'age': int(self.age_label.text.split(": ")[1]),  # Extract age from label
                 'traits': self.bar_graph.get_characteristics()
             }
 
@@ -82,6 +96,11 @@ class WelcomeScreen(Screen):
             print(f"Saved game data to {filename}")
         except Exception as e:
             print(f"Error saving game data: {e}")
+
+    def update_graph_with_current_data(self):
+        # Method to update the graph with the current character data
+        current_traits = self.bar_graph.get_characteristics()
+        self.bar_graph.update_characteristics(current_traits)
 
     def load_game_options(self, *args):
         saved_games = self.find_saved_games()
@@ -104,6 +123,7 @@ class WelcomeScreen(Screen):
                 first_name = game_state.get('first_name', 'Unknown')
                 last_name = game_state.get('last_name', 'Unknown')
                 self.character_label.text = f"{first_name} {last_name}"
+                self.age_label.text = f"Age: {game_state.get('age', 'Unknown')}"
                 self.bar_graph.update_characteristics(
                     game_state.get('traits', {}))  # Default to empty dict if 'traits' is missing
                 print(f"Loaded game data from {filename}")
