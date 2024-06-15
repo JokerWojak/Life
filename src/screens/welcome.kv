@@ -1,0 +1,24 @@
+<WelcomeScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+
+        Label:
+            text: 'Welcome to the Game!'
+            font_size: '24sp'
+            size_hint_y: 0.1
+
+        BarGraphWidget:
+            id: bar_graph  # Ensure you have an id for the BarGraphWidget
+            size_hint_y: 0.8
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.1
+
+            Button:
+                text: 'Accept'
+                on_release: root.accept_pressed()
+
+            Button:
+                text: 'Next'
+                on_release: root.next_pressed()

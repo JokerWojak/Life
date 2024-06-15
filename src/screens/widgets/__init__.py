@@ -1,0 +1,1 @@
+from .bargraph import BarGraphWidget

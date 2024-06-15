@@ -1,0 +1,29 @@
+# game.kv
+
+<GameScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10, 10
+        spacing: 10
+
+        Label:
+            text: root.character_label.text
+            font_size: '20sp'
+            size_hint_y: None
+            height: 50
+
+        BarGraphWidget:
+            size_hint: 1, 0.6
+
+        BoxLayout:
+            size_hint: 1, None
+            height: 50
+            orientation: 'horizontal'
+            spacing: 10
+
+            Button:
+                text: 'Save Game'
+                font_size: '20sp'
+                on_release: root.save_game(self)
+
+            # Add your other buttons here as needed
