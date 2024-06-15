@@ -1,5 +1,4 @@
 import os
-import json
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -7,7 +6,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.app import App
 from screens.widgets.bargraph import BarGraphWidget  # Ensure this import is correct
-
+from load_game import load_game  # Import the load_game function from load_game.py
 
 class GameScreen(Screen):
     def __init__(self, **kwargs):
@@ -58,19 +57,4 @@ class GameScreen(Screen):
         app.root.current = screen_name
 
     def on_enter(self):
-        self.load_game_data()  # Load or refresh game data whenever the screen is entered
-
-    def load_game_data(self):
-        filename = os.path.join(os.getcwd(), 'run', 'main_character.json')
-        try:
-            with open(filename, 'r') as f:
-                game_state = json.load(f)
-                self.character_label.text = f"Name: {game_state.get('first_name', '')} {game_state.get('last_name', '')}"
-                self.age_label.text = f"Age: {game_state.get('age', 0)}"
-                if 'traits' in game_state:
-                    self.bar_graph.update_characteristics(game_state['traits'])
-                self.text_output.text += f"\nGame data loaded from {filename}"
-        except FileNotFoundError:
-            self.text_output.text += f"\nNo saved game data found at {filename}"
-        except json.JSONDecodeError as je:
-            self.text_output.text += f"\nError decoding JSON from {filename}: {str(je)}"
+        load_game(self.character_label, self.age_label, self.bar_graph)  # Load game data when screen is entered

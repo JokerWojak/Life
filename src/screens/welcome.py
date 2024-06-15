@@ -1,5 +1,4 @@
 import random
-import json
 import os
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -8,7 +7,8 @@ from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from screens.widgets.bargraph import BarGraphWidget  # Ensure this import is correct
 from persons.character import Person
-
+from save_game import save_game
+from load_game import load_game
 
 class WelcomeScreen(Screen):
     def __init__(self, **kwargs):
@@ -19,7 +19,7 @@ class WelcomeScreen(Screen):
         layout.add_widget(self.character_label)
 
         self.age_label = Label(text='Age: 0', font_size='20sp', size_hint=(1, None), height=50)
-        layout.add_widget(self.age_label)  # Add age_label to the layout
+        layout.add_widget(self.age_label)
 
         self.bar_graph = BarGraphWidget(size_hint=(1, 0.6))
         layout.add_widget(self.bar_graph)
@@ -44,7 +44,7 @@ class WelcomeScreen(Screen):
 
     def accept_pressed(self, *args):
         # Save the current character data
-        self.save_game()
+        save_game(self.character_label, self.age_label, self.bar_graph)
 
         # Print statement for debugging
         print("Accept button pressed")
@@ -70,35 +70,9 @@ class WelcomeScreen(Screen):
         }
         self.bar_graph.update_characteristics(new_values)
 
-        self.save_game(new_character, new_values)  # Save the newly generated character data
-
-    def save_game(self, new_character=None, new_values=None):
-        if new_character and new_values:
-            save_data = {
-                'first_name': new_character.first_name,
-                'last_name': new_character.last_name,
-                'age': new_character.age,
-                'traits': new_values
-            }
-        else:
-            first_name, last_name = self.character_label.text.split()
-            save_data = {
-                'first_name': first_name,
-                'last_name': last_name,
-                'age': int(self.age_label.text.split(": ")[1]),  # Extract age from label
-                'traits': self.bar_graph.get_characteristics()
-            }
-
-        filename = os.path.join(os.getcwd(), 'run', 'main_character.json')  # Save to 'run' folder
-        try:
-            with open(filename, 'w') as f:
-                json.dump(save_data, f, indent=4)
-            print(f"Saved game data to {filename}")
-        except Exception as e:
-            print(f"Error saving game data: {e}")
+        save_game(self.character_label, self.age_label, self.bar_graph)  # Save the newly generated character data
 
     def update_graph_with_current_data(self):
-        # Method to update the graph with the current character data
         current_traits = self.bar_graph.get_characteristics()
         self.bar_graph.update_characteristics(current_traits)
 
@@ -115,24 +89,8 @@ class WelcomeScreen(Screen):
         popup.open()
 
     def load_game(self, game_name=None):
-        filename = os.path.join(os.getcwd(), 'run', 'main_character.json')  # Load from 'run' folder
-
-        try:
-            with open(filename, 'r') as save_file:
-                game_state = json.load(save_file)
-                first_name = game_state.get('first_name', 'Unknown')
-                last_name = game_state.get('last_name', 'Unknown')
-                self.character_label.text = f"{first_name} {last_name}"
-                self.age_label.text = f"Age: {game_state.get('age', 'Unknown')}"
-                self.bar_graph.update_characteristics(
-                    game_state.get('traits', {}))  # Default to empty dict if 'traits' is missing
-                print(f"Loaded game data from {filename}")
-        except FileNotFoundError:
-            print(f"Error: File not found: {filename}")
-        except json.JSONDecodeError as je:
-            print(f"Error decoding JSON from {filename}: {str(je)}")
+        load_game(self.character_label, self.age_label, self.bar_graph)
 
     def find_saved_games(self):
-        # Function to find all JSON files in the 'run' directory
-        saved_games = [filename for filename in os.listdir('run') if filename.endswith(".json")]
+        saved_games = [filename for filename in os.listdir(os.getcwd()) if filename.endswith(".json")]
         return saved_games
