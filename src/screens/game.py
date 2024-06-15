@@ -81,5 +81,26 @@ class GameScreen(Screen):
         except json.JSONDecodeError as je:
             self.text_output.text += f"\nError decoding JSON from {filename}: {str(je)}"
 
+    def save_game(self):
+        # Save the current character data
+        first_name, last_name = self.character_label.text.split(': ')[1].split()
+        current_age = int(self.age_label.text.split(': ')[1])
+        traits = self.bar_graph.get_characteristics()
+
+        save_data = {
+            'first_name': first_name,
+            'last_name': last_name,
+            'age': current_age,
+            'traits': traits
+        }
+
+        filename = os.path.join(os.getcwd(), 'run', 'main_character.json')  # Save to 'run' folder
+        try:
+            with open(filename, 'w') as f:
+                json.dump(save_data, f, indent=4)
+            print(f"Saved game data to {filename}")
+        except Exception as e:
+            print(f"Error saving game data: {e}")
+
     def surrender_pressed(self, *args):
         App.get_running_app().stop()  # Exit the Kivy application
