@@ -3,11 +3,17 @@ import json
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
-from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 from kivy.app import App
 from screens.widgets.bargraph import BarGraphWidget  # Ensure this import is correct
+
+# Import your custom buttons
+from buttons.button1 import Button1
+from buttons.button2 import Button2
+from buttons.button3 import Button3
+from buttons.button4 import Button4
+from buttons.button5 import Button5
 
 class GameScreen(Screen):
     def __init__(self, **kwargs):
@@ -18,10 +24,20 @@ class GameScreen(Screen):
         layout.add_widget(self.text_output)
 
         button_layout = BoxLayout(size_hint=(1, None), height=50, orientation='horizontal', spacing=10)
-        for i in range(1, 6):
-            btn = Button(text=f"Button {i}", font_size='20sp')
-            btn.bind(on_release=self.button_pressed)
-            button_layout.add_widget(btn)
+
+        # Create instances of each button and add them to the button layout
+        btn1 = Button1()
+        btn2 = Button2()
+        btn3 = Button3()
+        btn4 = Button4()
+        btn5 = Button5()
+
+        button_layout.add_widget(btn1)
+        button_layout.add_widget(btn2)
+        button_layout.add_widget(btn3)
+        button_layout.add_widget(btn4)
+        button_layout.add_widget(btn5)
+
         layout.add_widget(button_layout)
 
         info_layout = BoxLayout(size_hint=(1, None), height=50, orientation='horizontal', spacing=10)
