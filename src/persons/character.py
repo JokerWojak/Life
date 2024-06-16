@@ -6,13 +6,14 @@ import json
 class Person:
     MAX_RECURSION_DEPTH = 12
 
-    def __init__(self):
+    def __init__(self, depth=0):
         self.id = str(uuid.uuid4())  # Generate a unique ID for each character
         self.gender = self.generate_gender()
         self.first_name = self.generate_first_name()
         self.last_name = self.generate_last_name()
-        self.age = 0  # Initialize age to 0 upon creation
+        self.age = random.randint(0, 10) if depth == 0 else random.randint(30, 60)  # Random age for root or parents
         self.parents = []  # List to store relationships with parents
+        self.depth = depth
 
     def generate_gender(self):
         return random.choice(["Male", "Female"])
@@ -31,23 +32,21 @@ class Person:
 
     def generate_family(self, current_depth=0):
         if current_depth >= Person.MAX_RECURSION_DEPTH:
-            return
+            return []
 
-        father = Person()
-        mother = Person()
-        father.age = random.randint(30, 60)
-        mother.age = random.randint(30, 55)
-        father.first_name = random.choice(["John", "Michael", "David"])
-        mother.first_name = random.choice(["Emily", "Anna", "Sarah"])
-        father.last_name = self.last_name
-        mother.last_name = self.last_name
+        father = Person(depth=current_depth + 1)
+        mother = Person(depth=current_depth + 1)
+        father.last_name = self.last_name  # Parents share the child's last name
+
         self.parents.append({
-            'father': father.create_full_name(),
-            'mother': mother.create_full_name()
+            'father': father.to_dict(),
+            'mother': mother.to_dict()
         })
 
         father.generate_family(current_depth + 1)
         mother.generate_family(current_depth + 1)
+
+        return [father, mother]
 
     def to_dict(self):
         return {
@@ -60,7 +59,7 @@ class Person:
         }
 
     def save_to_json(self):
-        filename = f"{self.id}.json"
+        filename = os.path.join(os.getcwd(), f"{self.id}.json")
         with open(filename, 'w') as f:
             json.dump(self.to_dict(), f, indent=4)
         return filename
@@ -81,23 +80,19 @@ class Person:
 
 
 if __name__ == "__main__":
-    child = Person()
-    child.generate_family()
+    # Create a root person (the child in this case)
+    root_person = Person()
+    root_person.generate_family()
 
-    # Save child and parents to separate JSON files
-    child_filename = child.save_to_json()
-    print(f"Saved child to {child_filename}")
+    # Save root person
+    root_filename = root_person.save_to_json()
+    print(f"Saved root person to {root_filename}")
 
-    for parent_dict in child.parents:
-        father_name = parent_dict['father']
-        mother_name = parent_dict['mother']
+    # Save all family members recursively
+    family_queue = root_person.generate_family()
 
-        # Extract first names for parent IDs
-        parent_id = f"{father_name.split()[0]}_{mother_name.split()[0]}"
-
-        # Create parent instance
-        parent = Person()
-        parent.first_name = father_name
-        parent.last_name = child.last_name
-        parent_filename = parent.save_to_json()
-        print(f"Saved parent to {parent_filename}")
+    while family_queue:
+        person = family_queue.pop(0)
+        filename = person.save_to_json()
+        print(f"Saved person to {filename}")
+        family_queue.extend(person.generate_family(current_depth=person.depth))

@@ -1,12 +1,14 @@
 import os
+import json
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.app import App
-from screens.widgets.bargraph import BarGraphWidget  # Ensure this import is correct
-from load_game import load_game  # Import the load_game function from load_game.py
+from screens.widgets.bargraph import BarGraphWidget
+from load_game import load_game
+from save_game import save_game
 
 class GameScreen(Screen):
     def __init__(self, **kwargs):
