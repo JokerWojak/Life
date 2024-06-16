@@ -1,9 +1,10 @@
 import os
 import json
 from screens.widgets.bargraph import BarGraphWidget
+from persons.person import Person
 
 def load_game(character_label, age_label, bar_graph):
-    filename = os.path.join(os.getcwd(), 'main_character.json')  # Load from root folder
+    filename = os.path.join(os.getcwd(), 'run', 'main_character.json')  # Load from 'run' directory
 
     try:
         with open(filename, 'r') as f:
@@ -26,3 +27,11 @@ def load_parents_data(parents):
     mother = parents.get('mother', {})
     print(f"Father: {father.get('first_name', 'Unknown')} {father.get('last_name', 'Unknown')}, Age: {father.get('age', 0)}")
     print(f"Mother: {mother.get('first_name', 'Unknown')} {mother.get('last_name', 'Unknown')}, Age: {mother.get('age', 0)}")
+
+if __name__ == "__main__":
+    # Example usage
+    character_label = {"text": ""}
+    age_label = {"text": ""}
+    bar_graph = BarGraphWidget()
+
+    load_game(character_label, age_label, bar_graph)

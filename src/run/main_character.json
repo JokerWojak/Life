@@ -1,0 +1,15 @@
+{
+    "id": "1fa9e1b0-5049-40af-b8ac-64d6df3388c3",
+    "first_name": "Malinde",
+    "last_name": "Terry",
+    "age": 0,
+    "traits": {
+        "Health": 6,
+        "Smarts": 83,
+        "Looks": 26,
+        "Happiness": 83
+    },
+    "money": 9721,
+    "property": "None",
+    "relationship": []
+}

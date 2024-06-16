@@ -5,7 +5,7 @@ import os
 
 
 class Person:
-    MAX_RECURSION_DEPTH = 12
+    MAX_RECURSION_DEPTH = 3
 
     def __init__(self, depth=0):
         self.id = str(uuid.uuid4())  # Generate a unique ID for each character
@@ -14,6 +14,8 @@ class Person:
         self.last_name = self.generate_last_name()
         self.age = random.randint(0, 0) if depth == 0 else random.randint(30, 60)  # Random age for root or parents
         self.parents = []  # List to store relationships with parents
+        self.parents_relationships = []  # List to store relationships between parents
+        self.traits = {}  # Dictionary to store characteristics/traits
         self.depth = depth
 
     def generate_gender(self):
@@ -53,6 +55,9 @@ class Person:
             'mother': mother.to_dict()
         })
 
+        # Example of populating parents_relationships
+        self.parents_relationships.append(f"{father.first_name} & {mother.first_name}")
+
         father.generate_family(current_depth + 1)
         mother.generate_family(current_depth + 1)
 
@@ -65,7 +70,8 @@ class Person:
             'first_name': self.first_name,
             'last_name': self.last_name,
             'age': self.age,
-            'parents': self.parents
+            'parents': self.parents,
+            'traits': self.traits  # Include traits in the dictionary representation
         }
 
     def save_to_json(self):
@@ -83,7 +89,19 @@ class Person:
         person.last_name = data.get('last_name', '')
         person.age = data.get('age', 0)
         person.parents = data.get('parents', [])
+        person.traits = data.get('traits', {})  # Initialize traits from data
         return person
+
+    def get_parents_relationships(self):
+        return self.parents_relationships
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}, Age: {self.age}, Gender: {self.gender}"
+
+
+# Example usage:
+if __name__ == "__main__":
+    # Example of creating a Person object and saving it to JSON
+    person = Person()
+    print(person)  # Print the person's information
+    person.save_to_json()  # Save the person's data to a JSON file
