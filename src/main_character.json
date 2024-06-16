@@ -1,12 +1,12 @@
 {
-    "first_name": "Terence",
-    "last_name": "Hwang",
+    "first_name": "Bruno",
+    "last_name": "Joseph",
     "age": 0,
     "traits": {
-        "Health": 95,
-        "Smarts": 52,
-        "Looks": 96,
-        "Happiness": 9
+        "Health": 46,
+        "Smarts": 55,
+        "Looks": 30,
+        "Happiness": 67
     },
     "parents": {
         "father": {
