@@ -6,7 +6,8 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.app import App
 from screens.widgets.bargraph import BarGraphWidget
-from persons.load_main_character import load_main_character  # Import load_main_character function
+from persons.load_main_character import load_main_character
+from persons.save_main_character import save_main_character_to_json  # Import save_main_character_to_json function
 
 class GameScreen(Screen):
     def __init__(self, **kwargs):
@@ -59,6 +60,10 @@ class GameScreen(Screen):
     def on_enter(self):
         # Load main character data when screen is entered
         load_main_character(self.character_label, self.age_label, self.bar_graph)
+
+    def save_main_character(self, main_character):
+        # Save main character data when needed
+        save_main_character_to_json(main_character)
 
     def print_current_widget_data(self):
         # Example function to print widget data for debugging

@@ -1,10 +1,15 @@
 {
-    "id": "6baa1a4c-9f34-4caa-8392-1869e481725a",
-    "first_name": "Odie",
-    "last_name": "Hood",
-    "age": 0,
-    "traits": {},
-    "money": 8439,
+    "id": "14744a57-6b54-4649-916f-94e5595f0357",
+    "first_name": "Selina",
+    "last_name": "Langston",
+    "age": 9,
+    "traits": {
+        "Health": 68,
+        "Smarts": 36,
+        "Looks": 65,
+        "Happiness": 72
+    },
+    "money": 7846,
     "property": "None",
     "relationship": []
 }

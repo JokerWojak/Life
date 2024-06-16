@@ -2,9 +2,9 @@ import random
 import uuid
 import json
 import os
-import logging  # Step 1: Import the logging module
+import logging
 
-# Step 2: Configure logging
+# Step 1: Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
@@ -16,10 +16,10 @@ class Person:
         self.gender = self.generate_gender()
         self.first_name = self.generate_first_name()
         self.last_name = self.generate_last_name()
-        self.age = random.randint(0, 0) if depth == 0 else random.randint(30, 60)
+        self.age = random.randint(0, 30) if depth == 0 else random.randint(30, 60)
         self.parents = []
         self.parents_relationships = []
-        self.traits = {}
+        self.traits = self.generate_traits()
         self.depth = depth
 
         logging.debug(f'Initialized Person object: {self}')
@@ -54,6 +54,16 @@ class Person:
             if last_name != "Unknown":
                 logging.debug(f'Generated last name: {last_name}')
                 return last_name
+
+    def generate_traits(self):
+        traits = {
+            'Health': random.randint(0, 100),
+            'Smarts': random.randint(0, 100),
+            'Looks': random.randint(0, 100),
+            'Happiness': random.randint(0, 100)
+        }
+        logging.debug(f'Generated traits: {traits}')
+        return traits
 
     def create_full_name(self):
         full_name = f"{self.first_name} {self.last_name}"

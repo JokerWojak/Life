@@ -1,9 +1,8 @@
-# persons/save_main_character.py
-
 import os
 import json
 import random
 import sys
+from persons.load_main_character import load_main_character
 
 def save_main_character_to_json(main_character):
     """
@@ -35,7 +34,7 @@ def save_main_character_to_json(main_character):
         'traits': main_character.traits,
         'money': random.randint(1000, 10000),  # Example: Random money amount
         'property': "None",  # Example: Placeholder for property data
-        'relationship': main_character.get_parents_relationships()  # Assuming method exists
+        'relationship': main_character.get_parents_relationships()  # Using get_parents_relationships method
     }
 
     # Save data to JSON file under "run" directory
