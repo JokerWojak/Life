@@ -1,6 +1,7 @@
 import random
 import uuid
 import json
+import os
 
 
 class Person:
@@ -11,7 +12,7 @@ class Person:
         self.gender = self.generate_gender()
         self.first_name = self.generate_first_name()
         self.last_name = self.generate_last_name()
-        self.age = random.randint(0, 10) if depth == 0 else random.randint(30, 60)  # Random age for root or parents
+        self.age = random.randint(0, 0) if depth == 0 else random.randint(30, 60)  # Random age for root or parents
         self.parents = []  # List to store relationships with parents
         self.depth = depth
 
@@ -20,12 +21,21 @@ class Person:
 
     def generate_first_name(self):
         if self.gender == "Male":
-            return random.choice(["John", "Alex", "Michael", "David"])
+            names_file = "male_names.txt"
         else:
-            return random.choice(["Jane", "Emily", "Sarah", "Anna"])
+            names_file = "female_names.txt"
+
+        names_path = os.path.join(os.getcwd(), "assets", names_file)
+        with open(names_path, 'r') as f:
+            names_list = [name.strip() for name in f.readlines()]
+        return random.choice(names_list)
 
     def generate_last_name(self):
-        return random.choice(["Smith", "Doe", "Brown", "Johnson"])
+        names_file = "last_names.txt"
+        names_path = os.path.join(os.getcwd(), "assets", names_file)
+        with open(names_path, 'r') as f:
+            names_list = [name.strip() for name in f.readlines()]
+        return random.choice(names_list)
 
     def create_full_name(self):
         return f"{self.first_name} {self.last_name}"

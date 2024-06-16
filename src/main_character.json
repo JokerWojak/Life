@@ -1,0 +1,23 @@
+{
+    "first_name": "Terence",
+    "last_name": "Hwang",
+    "age": 0,
+    "traits": {
+        "Health": 95,
+        "Smarts": 52,
+        "Looks": 96,
+        "Happiness": 9
+    },
+    "parents": {
+        "father": {
+            "first_name": "John",
+            "last_name": "Doe",
+            "age": 50
+        },
+        "mother": {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "age": 48
+        }
+    }
+}
