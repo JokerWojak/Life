@@ -10,8 +10,8 @@ def load_game(character_label, age_label, bar_graph):
             game_state = json.load(f)
             first_name = game_state.get('first_name', 'Unknown')
             last_name = game_state.get('last_name', 'Unknown')
-            character_label.text = f"Name: {first_name} {last_name}"
-            age_label.text = f"Age: {game_state.get('age', 0)}"
+            character_label.text = f"{first_name} {last_name}"
+            age_label.text = f"{game_state.get('age', 0)}"
             if 'traits' in game_state:
                 bar_graph.update_characteristics(game_state['traits'])
             print(f"Loaded game data from {filename}")

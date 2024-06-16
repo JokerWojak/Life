@@ -60,7 +60,7 @@ class WelcomeScreen(Screen):
         self.character_label.text = new_character.create_full_name()
 
         # Update age in UI
-        self.age_label.text = f"Age: {new_character.age}"
+        self.age_label.text = f"{new_character.age}"
 
         new_values = {
             'Health': random.randint(0, 100),
