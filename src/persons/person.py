@@ -7,14 +7,15 @@ import logging  # Step 1: Import the logging module
 # Step 2: Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
+
 class Person:
     MAX_RECURSION_DEPTH = 3
 
     def __init__(self, depth=0):
         self.id = str(uuid.uuid4())
         self.gender = self.generate_gender()
-        self.first_name = "Unknown"
-        self.last_name = "Unknown"
+        self.first_name = self.generate_first_name()
+        self.last_name = self.generate_last_name()
         self.age = random.randint(0, 0) if depth == 0 else random.randint(30, 60)
         self.parents = []
         self.parents_relationships = []
@@ -27,26 +28,32 @@ class Person:
         return random.choice(["Male", "Female"])
 
     def generate_first_name(self):
-        if self.gender == "Male":
-            names_file = "male_names.txt"
-        else:
-            names_file = "female_names.txt"
+        while True:
+            if self.gender == "Male":
+                names_file = "male_names.txt"
+            else:
+                names_file = "female_names.txt"
 
-        names_path = os.path.join(os.getcwd(), "assets", names_file)
-        with open(names_path, 'r') as f:
-            names_list = [name.strip() for name in f.readlines()]
-        first_name = random.choice(names_list)
-        logging.debug(f'Generated first name: {first_name}')
-        return first_name
+            names_path = os.path.join(os.getcwd(), "assets", names_file)
+            with open(names_path, 'r') as f:
+                names_list = [name.strip() for name in f.readlines()]
+            first_name = random.choice(names_list)
+
+            if first_name != "Unknown":
+                logging.debug(f'Generated first name: {first_name}')
+                return first_name
 
     def generate_last_name(self):
-        names_file = "last_names.txt"
-        names_path = os.path.join(os.getcwd(), "assets", names_file)
-        with open(names_path, 'r') as f:
-            names_list = [name.strip() for name in f.readlines()]
-        last_name = random.choice(names_list)
-        logging.debug(f'Generated last name: {last_name}')
-        return last_name
+        while True:
+            names_file = "last_names.txt"
+            names_path = os.path.join(os.getcwd(), "assets", names_file)
+            with open(names_path, 'r') as f:
+                names_list = [name.strip() for name in f.readlines()]
+            last_name = random.choice(names_list)
+
+            if last_name != "Unknown":
+                logging.debug(f'Generated last name: {last_name}')
+                return last_name
 
     def create_full_name(self):
         full_name = f"{self.first_name} {self.last_name}"
@@ -112,12 +119,11 @@ class Person:
     def __str__(self):
         return f"{self.first_name} {self.last_name}, Age: {self.age}, Gender: {self.gender}"
 
+
 # Example usage:
 if __name__ == "__main__":
     logging.debug("Starting the program")
     person = Person()
-    person.generate_first_name()
-    person.generate_last_name()
     person.create_full_name()
     person.generate_family()
     person.save_to_json()
