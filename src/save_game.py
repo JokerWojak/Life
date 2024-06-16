@@ -4,7 +4,6 @@ import random
 from persons.person import Person
 from persons.generate_parents import generate_parents
 
-
 def save_game(character_label, age_label, bar_graph):
     main_character = generate_main_character(character_label, age_label, bar_graph)
     main_character_filename = save_person_to_json(main_character, "main_character")
@@ -17,20 +16,27 @@ def save_game(character_label, age_label, bar_graph):
         print(f"Saved person to {filename}")
         family_queue.extend(person.generate_family(current_depth=person.depth))
 
-
 def generate_main_character(character_label, age_label, bar_graph):
     # Generate main character data
-    name_parts = character_label.text.split()
-    if len(name_parts) == 2:
-        first_name, last_name = name_parts
+    if isinstance(character_label, dict) and "text" in character_label:
+        name_parts = character_label["text"].split()
+        if len(name_parts) == 2:
+            first_name, last_name = name_parts
+        else:
+            first_name, last_name = "Unknown", "Unknown"
     else:
         first_name, last_name = "Unknown", "Unknown"
 
     main_character = Person()
     main_character.first_name = first_name
     main_character.last_name = last_name
-    main_character.age = int(age_label.text.split(": ")[1]) if len(age_label.text.split(": ")) > 1 else 0
-    main_character.traits = bar_graph.get_characteristics()
+    main_character.age = int(age_label["text"].split(": ")[1]) if isinstance(age_label, dict) and "text" in age_label and len(age_label["text"].split(": ")) > 1 else 0
+
+    # Check if bar_graph is callable and has a get_characteristics method
+    if hasattr(bar_graph, "get_characteristics") and callable(getattr(bar_graph, "get_characteristics")):
+        main_character.traits = bar_graph.get_characteristics()
+    else:
+        main_character.traits = {}
 
     # Save main character's parents data
     parents_data = generate_parents(main_character.age, 60)
@@ -38,11 +44,15 @@ def generate_main_character(character_label, age_label, bar_graph):
 
     return main_character
 
-
 def save_person_to_json(person, filename):
-    # Create a directory if it doesn't exist
+    # Create a directory "run" under the current working directory if it doesn't exist
     save_dir = os.path.join(os.getcwd(), 'run')
     os.makedirs(save_dir, exist_ok=True)
+
+    if filename == "main_character":
+        save_filename = os.path.join(save_dir, "main_character.json")
+    else:
+        save_filename = os.path.join(save_dir, f"{filename}.json")
 
     # Prepare data to save
     data_to_save = {
@@ -53,22 +63,19 @@ def save_person_to_json(person, filename):
         'traits': person.traits,
         'money': random.randint(1000, 10000),  # Example: Random money amount
         'property': "None",  # Example: Placeholder for property data
-        'relationship': person.parents_relationships  # Example: Assuming parents_relationships is defined
+        'relationship': person.get_parents_relationships()  # Assuming get_parents_relationships() method exists
     }
 
-    # Save data to JSON file
-    save_filename = os.path.join(save_dir, f"{filename}.json")
+    # Save data to JSON file under "run" directory
     with open(save_filename, 'w') as f:
         json.dump(data_to_save, f, indent=4)
 
     return save_filename
 
-
 if __name__ == "__main__":
     # Example usage
     character_label = {"text": "John Smith"}  # Example character label
     age_label = {"text": "Age: 25"}  # Example age label
-    bar_graph = {"get_characteristics": lambda: {"trait1": 0.8, "trait2": 0.6, "trait3": 0.4,
-                                                 "trait4": 0.2}}  # Example bar graph
+    bar_graph = BarGraphWidget()  # Example bar graph widget
 
     save_game(character_label, age_label, bar_graph)

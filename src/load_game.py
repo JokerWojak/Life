@@ -17,10 +17,15 @@ def load_game(character_label, age_label, bar_graph):
             # Load parents data
             if 'parents' in game_state:
                 load_parents_data(game_state['parents'])
+            else:
+                print("No parents data found in the game state.")
+
     except FileNotFoundError:
         print(f"Error: File not found: {filename}")
     except json.JSONDecodeError as je:
         print(f"Error decoding JSON from {filename}: {str(je)}")
+    except Exception as e:
+        print(f"Unexpected error occurred: {str(e)}")
 
 def load_parents_data(parents):
     father = parents.get('father', {})
