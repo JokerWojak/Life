@@ -9,6 +9,7 @@ from screens.widgets.bargraph import BarGraphWidget  # Ensure this import is cor
 from persons.character import Person
 from save_game import save_game
 from load_game import load_game
+from persons.save_main_character import save_main_character_to_json
 
 class WelcomeScreen(Screen):
     def __init__(self, **kwargs):
@@ -57,9 +58,10 @@ class WelcomeScreen(Screen):
 
     def next_pressed(self, *args):
         new_character = Person()
+        # Update character label text
         self.character_label.text = new_character.create_full_name()
 
-        # Update age in UI
+        # Update age label text
         self.age_label.text = f"Age: {new_character.age}"
 
         new_values = {
@@ -70,10 +72,17 @@ class WelcomeScreen(Screen):
         }
         self.bar_graph.update_characteristics(new_values)
 
-        save_game(self.character_label, self.age_label, self.bar_graph)  # Save the newly generated character data
+        # Save the newly generated character data to main_character.json
+        save_main_character_to_json(new_character)  # This will save to run/main_character.json
 
         # Print statement for debugging
         self.print_current_widget_data()
+
+    def print_current_widget_data(self):
+        # Example function to print widget data for debugging
+        print(f"Current Character: {self.character_label.text}")
+        print(f"Current Age: {self.age_label.text}")
+        # Add more prints for other widgets as needed
 
     def update_graph_with_current_data(self):
         current_traits = self.bar_graph.get_characteristics()

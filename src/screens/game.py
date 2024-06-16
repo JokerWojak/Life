@@ -1,5 +1,4 @@
 import os
-import json
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -7,8 +6,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.app import App
 from screens.widgets.bargraph import BarGraphWidget
-from load_game import load_game
-from save_game import save_game
+from persons.load_main_character import load_main_character  # Import load_main_character function
 
 class GameScreen(Screen):
     def __init__(self, **kwargs):
@@ -59,4 +57,22 @@ class GameScreen(Screen):
         app.root.current = screen_name
 
     def on_enter(self):
-        load_game(self.character_label, self.age_label, self.bar_graph)  # Load game data when screen is entered
+        # Load main character data when screen is entered
+        load_main_character(self.character_label, self.age_label, self.bar_graph)
+
+    def print_current_widget_data(self):
+        # Example function to print widget data for debugging
+        print(f"Current Character: {self.character_label.text}")
+        print(f"Current Age: {self.age_label.text}")
+        # Add more prints for other widgets as needed
+
+class YourApp(App):
+    def build(self):
+        screen_manager = ScreenManager()
+        game_screen = GameScreen(name='game')
+        screen_manager.add_widget(game_screen)
+
+        return screen_manager
+
+if __name__ == '__main__':
+    YourApp().run()
