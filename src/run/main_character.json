@@ -1,15 +1,1 @@
-{
-    "id": "1c6823c1-907f-4656-9f58-5ae435297355",
-    "first_name": "Unknown",
-    "last_name": "Unknown",
-    "age": 0,
-    "traits": {
-        "Health": 42,
-        "Smarts": 45,
-        "Looks": 19,
-        "Happiness": 56
-    },
-    "money": 7165,
-    "property": "None",
-    "relationship": []
-}
+{"id": "bed8a47e-dda2-44a1-ad87-6fa44869b5bd", "first_name": "Unknown", "last_name": "Unknown", "age": 0, "traits": {}, "money": 9240, "property": "None", "relationship": []}

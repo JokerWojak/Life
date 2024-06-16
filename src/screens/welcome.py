@@ -6,9 +6,14 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from screens.widgets.bargraph import BarGraphWidget  # Ensure this import is correct
-from persons.character import Person
+from persons.person import Person
 from save_game import save_game
 from load_game import load_game
+
+ASSETS_DIR = "assets"
+MALE_NAMES_FILE = os.path.join(ASSETS_DIR, "male_names.txt")
+FEMALE_NAMES_FILE = os.path.join(ASSETS_DIR, "female_names.txt")
+LAST_NAMES_FILE = os.path.join(ASSETS_DIR, "last_names.txt")
 
 class WelcomeScreen(Screen):
     def __init__(self, **kwargs):
@@ -56,19 +61,11 @@ class WelcomeScreen(Screen):
         self.manager.current = 'game'
 
     def next_pressed(self, *args):
-        new_character = Person()
+        new_character = generate_main_character()
         self.character_label.text = new_character.create_full_name()
+        self.age_label.text = f"Age: {new_character.age}"
 
-        # Update age in UI
-        self.age_label.text = f"{new_character.age}"
-
-        new_values = {
-            'Health': random.randint(0, 100),
-            'Smarts': random.randint(0, 100),
-            'Looks': random.randint(0, 100),
-            'Happiness': random.randint(0, 100)
-        }
-        self.bar_graph.update_characteristics(new_values)
+        self.bar_graph.update_characteristics(new_character.traits)
 
         save_game(self.character_label, self.age_label, self.bar_graph)  # Save the newly generated character data
 
@@ -94,3 +91,8 @@ class WelcomeScreen(Screen):
     def find_saved_games(self):
         saved_games = [filename for filename in os.listdir(os.getcwd()) if filename.endswith(".json")]
         return saved_games
+
+def generate_main_character():
+    main_character = Person(depth=0)
+    main_character.generate_family()
+    return main_character

@@ -3,19 +3,18 @@ import uuid
 import json
 import os
 
-
 class Person:
     MAX_RECURSION_DEPTH = 3
 
     def __init__(self, depth=0):
-        self.id = str(uuid.uuid4())  # Generate a unique ID for each character
+        self.id = str(uuid.uuid4())
         self.gender = self.generate_gender()
-        self.first_name = self.generate_first_name()
-        self.last_name = self.generate_last_name()
-        self.age = random.randint(0, 0) if depth == 0 else random.randint(30, 60)  # Random age for root or parents
-        self.parents = []  # List to store relationships with parents
-        self.parents_relationships = []  # List to store relationships between parents
-        self.traits = {}  # Dictionary to store characteristics/traits
+        self.first_name = "Unknown"
+        self.last_name = "Unknown"
+        self.age = random.randint(0, 0) if depth == 0 else random.randint(30, 60)
+        self.parents = []
+        self.parents_relationships = []
+        self.traits = {}
         self.depth = depth
 
     def generate_gender(self):
@@ -48,14 +47,13 @@ class Person:
 
         father = Person(depth=current_depth + 1)
         mother = Person(depth=current_depth + 1)
-        father.last_name = self.last_name  # Parents share the child's last name
+        father.last_name = self.last_name
 
         self.parents.append({
             'father': father.to_dict(),
             'mother': mother.to_dict()
         })
 
-        # Example of populating parents_relationships
         self.parents_relationships.append(f"{father.first_name} & {mother.first_name}")
 
         father.generate_family(current_depth + 1)
@@ -71,7 +69,7 @@ class Person:
             'last_name': self.last_name,
             'age': self.age,
             'parents': self.parents,
-            'traits': self.traits  # Include traits in the dictionary representation
+            'traits': self.traits
         }
 
     def save_to_json(self):
@@ -85,11 +83,11 @@ class Person:
         person = cls()
         person.id = data.get('id', str(uuid.uuid4()))
         person.gender = data.get('gender', 'Male')
-        person.first_name = data.get('first_name', '')
-        person.last_name = data.get('last_name', '')
+        person.first_name = data.get('first_name', 'Unknown')
+        person.last_name = data.get('last_name', 'Unknown')
         person.age = data.get('age', 0)
         person.parents = data.get('parents', [])
-        person.traits = data.get('traits', {})  # Initialize traits from data
+        person.traits = data.get('traits', {})
         return person
 
     def get_parents_relationships(self):
@@ -97,11 +95,3 @@ class Person:
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}, Age: {self.age}, Gender: {self.gender}"
-
-
-# Example usage:
-if __name__ == "__main__":
-    # Example of creating a Person object and saving it to JSON
-    person = Person()
-    print(person)  # Print the person's information
-    person.save_to_json()  # Save the person's data to a JSON file

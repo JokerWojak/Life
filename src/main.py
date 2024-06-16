@@ -7,6 +7,8 @@ from screens.buttons2.subscreen2 import SubScreen2
 from screens.buttons3.subscreen3 import SubScreen3
 from screens.buttons4.subscreen4 import SubScreen4
 from screens.buttons5.subscreen5 import SubScreen5
+from persons.person import Person
+from save_game import save_game
 
 class MyApp(App):
     def build(self):
@@ -19,6 +21,11 @@ class MyApp(App):
         sm.add_widget(SubScreen4(name='subscreen4'))
         sm.add_widget(SubScreen5(name='subscreen5'))
         return sm
+
+    def on_stop(self):
+        # Save the game state when the application is closed
+        main_character = Person()
+        save_game(main_character.create_full_name(), main_character.age, None)  # Assuming bar_graph is not used on exit
 
 if __name__ == '__main__':
     MyApp().run()
