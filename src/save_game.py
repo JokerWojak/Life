@@ -1,56 +1,92 @@
 import os
 import json
-import datetime
+import random
+from persons.person import Person
+from persons.generate_parents import generate_parents
 
-# Function to ensure the directory exists
-def ensure_directory_exists(path):
-    directory = os.path.dirname(path)
-    if not os.path.exists(directory):
-        print(f"Creating directory: {directory}")
-        os.makedirs(directory, exist_ok=True)
+def save_game(character_label, age_label, bar_graph):
+    print("Starting save_game...")
+    main_character = generate_main_character(character_label, age_label, bar_graph)
+    main_character_filename = save_person_to_json(main_character, "main_character")
+
+    family_queue = main_character.generate_family()
+
+    while family_queue:
+        person = family_queue.pop(0)
+        filename = save_person_to_json(person, person.id)
+        print(f"Saved person to {filename}")
+        family_queue.extend(person.generate_family(current_depth=person.depth))
+
+def generate_main_character(character_label, age_label, bar_graph):
+    print("Generating main character...")
+    # Generate main character data
+    if isinstance(character_label, dict) and "text" in character_label:
+        name_parts = character_label["text"].split()
+        if len(name_parts) == 2:
+            first_name, last_name = name_parts
+        else:
+            first_name, last_name = "Unknown", "Unknown"
     else:
-        print(f"Directory already exists: {directory}")
+        first_name, last_name = "Unknown", "Unknown"
 
-# Function to save data
-def save_data(data, path):
-    ensure_directory_exists(path)
-    with open(path, 'w') as file:
-        json.dump(data, file)
-    print(f"Saved data to: {path}")
+    main_character = Person()
+    main_character.first_name = first_name
+    main_character.last_name = last_name
+    print(f"Main character name: {first_name} {last_name}")
 
-# Function to save game state
-def save_game(name, age, bar_graph):
-    # Define the save path
-    save_path = '/Users/mac/PycharmProjects/Life/src/run/main_character.json'
-    print(f"Preparing to save game data to {save_path}")
+    main_character.age = int(age_label["text"].split(": ")[1]) if isinstance(age_label, dict) and "text" in age_label and len(age_label["text"].split(": ")) > 1 else 0
+    print(f"Main character age: {main_character.age}")
 
-    # Example data to save
-    main_character_data = {
-        'id': 'bed8a47e-dda2-44a1-ad87-6fa44869b5bd',
-        'first_name': name.split()[0] if name else 'Unknown',
-        'last_name': name.split()[-1] if name else 'Unknown',
-        'age': age,
-        'traits': {},
-        'money': 9240,
-        'property': 'None',
-        'relationship': [],
-        'saved_at': datetime.datetime.now().isoformat()
+    # Check if bar_graph is callable and has a get_characteristics method
+    if hasattr(bar_graph, "get_characteristics") and callable(getattr(bar_graph, "get_characteristics")):
+        main_character.traits = bar_graph.get_characteristics()
+    else:
+        main_character.traits = {}
+    print(f"Main character traits: {main_character.traits}")
+
+    # Save main character's parents data
+    parents_data = generate_parents(main_character.age, 60)
+    main_character.parents = parents_data
+    print(f"Main character parents: {parents_data}")
+
+    return main_character
+
+def save_person_to_json(person, filename):
+    print(f"Saving person {person.id} to JSON...")
+    # Create a directory "run" under the current working directory if it doesn't exist
+    save_dir = os.path.join(os.getcwd(), 'run')
+    os.makedirs(save_dir, exist_ok=True)
+
+    if filename == "main_character":
+        save_filename = os.path.join(save_dir, "main_character.json")
+    else:
+        save_filename = os.path.join(save_dir, f"{filename}.json")
+
+    # Prepare data to save
+    data_to_save = {
+        'id': person.id,
+        'first_name': person.first_name,
+        'last_name': person.last_name,
+        'age': person.age,
+        'traits': person.traits,
+        'money': random.randint(1000, 10000),  # Example: Random money amount
+        'property': "None",  # Example: Placeholder for property data
+        'relationship': person.get_parents_relationships()  # Assuming get_parents_relationships() method exists
     }
+    print(f"Data to save for {person.id}: {data_to_save}")
 
-    # Save the main character data
-    try:
-        save_data(main_character_data, save_path)
-        print("Game data saved successfully")
-    except Exception as e:
-        print(f"Error saving game data: {e}")
+    # Save data to JSON file under "run" directory
+    with open(save_filename, 'w') as f:
+        json.dump(data_to_save, f, indent=4)
 
-# Debug information about the current working directory and file structure
-print(f"Current working directory: {os.getcwd()}")
-print("Directory contents:")
-for root, dirs, files in os.walk(os.getcwd()):
-    level = root.replace(os.getcwd(), '').count(os.sep)
-    indent = ' ' * 4 * (level)
-    print(f"{indent}{os.path.basename(root)}/")
-    subindent = ' ' * 4 * (level + 1)
-    for f in files:
-        print(f"{subindent}{f}")
+    print(f"Saved {filename} to {save_filename}")
+    return save_filename
+
+if __name__ == "__main__":
+    # Example usage
+    character_label = {"text": "John Smith"}  # Example character label
+    age_label = {"text": "Age: 25"}  # Example age label
+    bar_graph = BarGraphWidget()  # Example bar graph widget
+
+    save_game(character_label, age_label, bar_graph)
+    print("Game saved successfully!")

@@ -2,6 +2,10 @@ import random
 import uuid
 import json
 import os
+import logging  # Step 1: Import the logging module
+
+# Step 2: Configure logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Person:
     MAX_RECURSION_DEPTH = 3
@@ -17,6 +21,8 @@ class Person:
         self.traits = {}
         self.depth = depth
 
+        logging.debug(f'Initialized Person object: {self}')
+
     def generate_gender(self):
         return random.choice(["Male", "Female"])
 
@@ -29,17 +35,23 @@ class Person:
         names_path = os.path.join(os.getcwd(), "assets", names_file)
         with open(names_path, 'r') as f:
             names_list = [name.strip() for name in f.readlines()]
-        return random.choice(names_list)
+        first_name = random.choice(names_list)
+        logging.debug(f'Generated first name: {first_name}')
+        return first_name
 
     def generate_last_name(self):
         names_file = "last_names.txt"
         names_path = os.path.join(os.getcwd(), "assets", names_file)
         with open(names_path, 'r') as f:
             names_list = [name.strip() for name in f.readlines()]
-        return random.choice(names_list)
+        last_name = random.choice(names_list)
+        logging.debug(f'Generated last name: {last_name}')
+        return last_name
 
     def create_full_name(self):
-        return f"{self.first_name} {self.last_name}"
+        full_name = f"{self.first_name} {self.last_name}"
+        logging.debug(f'Created full name: {full_name}')
+        return full_name
 
     def generate_family(self, current_depth=0):
         if current_depth >= Person.MAX_RECURSION_DEPTH:
@@ -55,6 +67,8 @@ class Person:
         })
 
         self.parents_relationships.append(f"{father.first_name} & {mother.first_name}")
+
+        logging.debug(f'Generated family for {self.first_name}: Father: {father}, Mother: {mother}')
 
         father.generate_family(current_depth + 1)
         mother.generate_family(current_depth + 1)
@@ -76,6 +90,7 @@ class Person:
         filename = os.path.join(os.getcwd(), f"{self.id}.json")
         with open(filename, 'w') as f:
             json.dump(self.to_dict(), f, indent=4)
+        logging.info(f'Saved Person object to JSON file: {filename}')
         return filename
 
     @classmethod
@@ -88,6 +103,7 @@ class Person:
         person.age = data.get('age', 0)
         person.parents = data.get('parents', [])
         person.traits = data.get('traits', {})
+        logging.debug(f'Created Person object from dictionary: {person}')
         return person
 
     def get_parents_relationships(self):
@@ -95,3 +111,14 @@ class Person:
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}, Age: {self.age}, Gender: {self.gender}"
+
+# Example usage:
+if __name__ == "__main__":
+    logging.debug("Starting the program")
+    person = Person()
+    person.generate_first_name()
+    person.generate_last_name()
+    person.create_full_name()
+    person.generate_family()
+    person.save_to_json()
+    logging.debug("Program completed successfully")
