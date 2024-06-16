@@ -5,7 +5,7 @@ from persons.person import Person
 
 
 def load_game(character_label, age_label, bar_graph):
-    filename = os.path.join(os.getcwd(), 'src', 'run', 'main_character.json')  # Correct path to 'main_character.json'
+    filename = os.path.join(os.getcwd(), 'run', 'main_character.json')  # Correct path to 'main_character.json'
 
     try:
         with open(filename, 'r') as f:

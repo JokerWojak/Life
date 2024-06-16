@@ -47,7 +47,7 @@ class WelcomeScreen(Screen):
         save_game(self.character_label, self.age_label, self.bar_graph)
 
         # Print statement for debugging
-        print("Accept button pressed")
+        self.print_current_widget_data()
 
         # Update the graph with the current data
         self.update_graph_with_current_data()
@@ -60,7 +60,7 @@ class WelcomeScreen(Screen):
         self.character_label.text = new_character.create_full_name()
 
         # Update age in UI
-        self.age_label.text = f"{new_character.age}"
+        self.age_label.text = f"Age: {new_character.age}"
 
         new_values = {
             'Health': random.randint(0, 100),
@@ -71,6 +71,9 @@ class WelcomeScreen(Screen):
         self.bar_graph.update_characteristics(new_values)
 
         save_game(self.character_label, self.age_label, self.bar_graph)  # Save the newly generated character data
+
+        # Print statement for debugging
+        self.print_current_widget_data()
 
     def update_graph_with_current_data(self):
         current_traits = self.bar_graph.get_characteristics()
@@ -91,6 +94,18 @@ class WelcomeScreen(Screen):
     def load_game(self, game_name=None):
         load_game(self.character_label, self.age_label, self.bar_graph)
 
+        # Print statement for debugging
+        self.print_current_widget_data()
+
     def find_saved_games(self):
         saved_games = [filename for filename in os.listdir(os.getcwd()) if filename.endswith(".json")]
         return saved_games
+
+    def print_current_widget_data(self):
+        print(f"Current Character: {self.character_label.text}")
+        print(f"Current Age: {self.age_label.text}")
+        current_traits = self.bar_graph.get_characteristics()
+        print("Current Characteristics:")
+        for trait, value in current_traits.items():
+            print(f"{trait}: {value}")
+        print("---")
