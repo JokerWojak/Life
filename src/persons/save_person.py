@@ -3,27 +3,22 @@ import json
 import random
 import sys
 
-def save_person_to_json(person):
+def save_person_to_json(person, filename):
     """
     Save a Person object to a JSON file.
 
     Args:
         person (Person): The Person object to save.
+        filename (str): The path where the JSON file should be saved.
 
     Returns:
-        str: The filename where the Person data was saved.
+        str: The full path where the JSON file is saved.
     """
     print(f"Saving person {person.id} to JSON...")
 
-    # Ensure saving only to the "run" directory
-    save_dir = os.path.join(os.getcwd(), 'run')
-    if not os.path.exists(save_dir):
-        print(f"Error: Directory 'run' does not exist. Exiting with code 216615.")
-        sys.exit(216615)
-
-    # Prepare filename based on person id
-    filename = f"{person.id}.json"
-    save_filename = os.path.join(save_dir, filename)
+    # Ensure saving only to the specified directory
+    save_dir = os.path.dirname(filename)
+    os.makedirs(save_dir, exist_ok=True)
 
     # Prepare data to save
     data_to_save = {
@@ -37,9 +32,9 @@ def save_person_to_json(person):
         'relationship': person.get_parents_relationships()  # Example: Assuming method exists
     }
 
-    # Save data to JSON file under "run" directory
-    with open(save_filename, 'w') as f:
+    # Save data to JSON file
+    with open(filename, 'w') as f:
         json.dump(data_to_save, f, indent=4)
 
-    print(f"Saved {person.id} to {save_filename}")
-    return save_filename
+    print(f"Saved {person.id} to {filename}")
+    return filename

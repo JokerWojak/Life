@@ -1,15 +1,15 @@
 {
-    "id": "14744a57-6b54-4649-916f-94e5595f0357",
-    "first_name": "Selina",
-    "last_name": "Langston",
-    "age": 9,
+    "id": "47b0991c-b34f-4681-9a17-8fa1ad863fa7",
+    "first_name": "Aleece",
+    "last_name": "Edwards",
+    "age": 19,
     "traits": {
-        "Health": 68,
-        "Smarts": 36,
-        "Looks": 65,
-        "Happiness": 72
+        "Health": 19,
+        "Smarts": 92,
+        "Looks": 3,
+        "Happiness": 42
     },
-    "money": 7846,
+    "money": 5898,
     "property": "None",
     "relationship": []
 }
