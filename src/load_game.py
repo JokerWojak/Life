@@ -1,7 +1,7 @@
 import os
 import json
 import zipfile
-from persons.person import Person
+from persons.person import Person  # Assuming Person class is defined in persons/person.py
 
 def load_game_data_from_zip(zip_file):
     """
@@ -11,24 +11,77 @@ def load_game_data_from_zip(zip_file):
         zip_file (str): The path to the zip file containing game data.
 
     Returns:
-        dict: Game data loaded from the zip file as a dictionary.
+        dict: Game data loaded from the zip file as a dictionary, or None if an error occurs.
     """
     try:
         with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-            # Assuming main_character.json is always present in the root of the zip file
-            main_character_file = [file for file in zip_ref.namelist() if file.endswith('main_character.json')][0]
+            # List all files in the zip for debugging
+            print(f"Files in {zip_file}: {zip_ref.namelist()}")
+
+            # Find main_character.json in the zip file
+            main_character_files = [file for file in zip_ref.namelist() if file.endswith('main_character.json')]
+            if not main_character_files:
+                print(f"Error: No main_character.json found in {zip_file}")
+                return None
+
+            main_character_file = main_character_files[0]
             with zip_ref.open(main_character_file) as file:
                 game_data = json.load(file)
+
         return game_data
+
     except FileNotFoundError:
         print(f"Error: Zip file '{zip_file}' not found.")
         return None
+
     except json.JSONDecodeError:
-        print(f"Error: Failed to decode JSON from '{zip_file}'.")
+        print(f"Error: Failed to decode JSON from '{main_character_file}' in {zip_file}.")
         return None
+
     except Exception as e:
-        print(f"Unexpected error occurred: {str(e)}")
+        print(f"Unexpected error occurred while loading {zip_file}: {str(e)}")
         return None
+
+
+def extract_main_character_info(game_data):
+    """
+    Extract main character information from the loaded game data.
+
+    Args:
+        game_data (dict): Loaded game data as a dictionary.
+
+    Returns:
+        dict: Dictionary containing main character information (first_name, last_name, age, traits).
+              Returns None if 'main_character' key is missing in game_data.
+    """
+    try:
+        # Ensure game_data is a dictionary
+        if not isinstance(game_data, dict):
+            raise ValueError("Game data must be a dictionary.")
+
+        # Extract main character information
+        main_character = game_data.get('main_character', None)
+        if not main_character:
+            print("Error: 'main_character' key not found in game data.")
+            return None
+
+        first_name = main_character.get('first_name', 'Unknown')
+        last_name = main_character.get('last_name', 'Unknown')
+        age = main_character.get('age', 0)
+        traits = main_character.get('traits', {})
+
+        return {
+            'first_name': first_name,
+            'last_name': last_name,
+            'age': age,
+            'traits': traits
+        }
+
+    except Exception as e:
+        print(f"Error occurred during extraction of main character info: {str(e)}")
+        return None
+
+
 
 def load_game(character_label, age_label, bar_graph):
     saved_games_dir = os.path.join(os.getcwd(), 'run', 'saved_games')
@@ -45,20 +98,21 @@ def load_game(character_label, age_label, bar_graph):
 
     try:
         game_state = load_game_data_from_zip(first_zip_file)
+
         if game_state:
             print(f"Loaded game state from {first_zip_file}: {game_state}")
 
-            # Extract character information
-            first_name = game_state.get('first_name', 'Unknown')
-            last_name = game_state.get('last_name', 'Unknown')
-            age = game_state.get('age', 0)
-            traits = game_state.get('traits', {})
+            # Extract main character information
+            main_character_info = extract_main_character_info(game_state)
+            if not main_character_info:
+                print("Failed to extract main character information.")
+                return
 
             # Update UI elements
-            character_label['text'] = f"{first_name} {last_name}"
-            age_label['text'] = f"Age: {age}"
-            bar_graph.update_characteristics(traits)
-            print(f"Updated UI elements: character_label={character_label['text']}, age_label={age_label['text']}")
+            character_label.text = f"{main_character_info['first_name']} {main_character_info['last_name']}"
+            age_label.text = f"Age: {main_character_info['age']}"
+            bar_graph.update_characteristics(main_character_info['traits'])
+            print(f"Updated UI elements: character_label={character_label.text}, age_label={age_label.text}")
             print("UI elements updated successfully.")
 
             # Load parents data if available
@@ -70,6 +124,7 @@ def load_game(character_label, age_label, bar_graph):
     except Exception as e:
         print(f"Unexpected error occurred: {str(e)}")
 
+
 def load_parents_data(parents):
     father = parents.get('father', {})
     mother = parents.get('mother', {})
@@ -78,11 +133,10 @@ def load_parents_data(parents):
     print(
         f"Mother: {mother.get('first_name', 'Unknown')} {mother.get('last_name', 'Unknown')}, Age: {mother.get('age', 0)}")
 
-
-if __name__ == "__main__":
-    # Example usage (replace with actual UI components as needed)
-    character_label = {"text": ""}  # Placeholder for UI label
-    age_label = {"text": ""}  # Placeholder for UI label
-    bar_graph = BarGraphWidget()  # Placeholder for UI widget
-
-    load_game(character_label, age_label, bar_graph)
+# Example usage:
+# You would typically call load_game with appropriate parameters for your UI setup
+# For instance:
+# character_label = Label()
+# age_label = Label()
+# bar_graph = BarGraph()
+# load_game(character_label, age_label, bar_graph)

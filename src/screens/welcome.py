@@ -1,5 +1,7 @@
-import random
 import os
+import random
+import json
+import zipfile
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -7,8 +9,8 @@ from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from screens.widgets.bargraph import BarGraphWidget
 from persons.person import Person
+from load_game import extract_main_character_info
 from persons.save_main_character import save_main_character_to_json
-from load_game import load_game
 
 class WelcomeScreen(Screen):
     def __init__(self, **kwargs):
@@ -34,7 +36,7 @@ class WelcomeScreen(Screen):
         button_layout.add_widget(self.next_button)
 
         load_button = Button(text="Load Game", font_size='20sp')
-        load_button.bind(on_release=self.load_game_options)
+        load_button.bind(on_release=self.show_load_popup)
         button_layout.add_widget(load_button)
 
         layout.add_widget(button_layout)
@@ -43,24 +45,13 @@ class WelcomeScreen(Screen):
         self.load_game()  # Load initial character data on screen creation
 
     def accept_pressed(self, *args):
-        # Save the current character data (if needed)
-        # save_game(self.character_label, self.age_label, self.bar_graph)  # Uncomment if saving is needed
-
-        # Print statement for debugging
         self.print_current_widget_data()
-
-        # Update the graph with the current data
         self.update_graph_with_current_data()
-
-        # Switch to the 'game' screen
         self.manager.current = 'game'
 
     def next_pressed(self, *args):
         new_character = Person()
-        # Update character label text
         self.character_label.text = new_character.create_full_name()
-
-        # Update age label text
         self.age_label.text = f"Age: {new_character.age}"
 
         new_values = {
@@ -70,15 +61,11 @@ class WelcomeScreen(Screen):
             'Happiness': random.randint(0, 100)
         }
         self.bar_graph.update_characteristics(new_values)
+        save_main_character_to_json(new_character)
 
-        # Save the newly generated character data to main_character.json
-        save_main_character_to_json(new_character)  # This will save to run/main_character.json
-
-        # Print statement for debugging
         self.print_current_widget_data()
 
     def print_current_widget_data(self):
-        # Example function to print widget data for debugging
         print(f"Current Character: {self.character_label.text}")
         print(f"Current Age: {self.age_label.text}")
         current_traits = self.bar_graph.get_characteristics()
@@ -91,42 +78,118 @@ class WelcomeScreen(Screen):
         current_traits = self.bar_graph.get_characteristics()
         self.bar_graph.update_characteristics(current_traits)
 
-    def load_game_options(self, *args):
-        saved_games = self.find_saved_games()
-        content = BoxLayout(orientation='vertical', spacing=10)
-        popup = Popup(title='Load Game', content=content, size_hint=(None, None), size=(400, 400))
+    def show_load_popup(self, *args):
+        popup_layout = BoxLayout(orientation='vertical')
+        for game_name in self.find_saved_games():
+            button = Button(text=game_name, size_hint_y=None, height=40)
+            button.bind(on_release=lambda btn: self.load_game_options(btn.text))
+            popup_layout.add_widget(button)
 
-        for game_name in saved_games:
-            btn_text = self.get_game_display_name(game_name)
-            btn = Button(text=btn_text, size_hint_y=None, height=40)
-            btn.bind(on_release=lambda btn: self.load_game(game_name))
-            content.add_widget(btn)
-
+        popup = Popup(title='Load Game', content=popup_layout, size_hint=(0.8, 0.8))
         popup.open()
 
-    def load_game(self, game_name=None):
-        load_game(self.character_label, self.age_label, self.bar_graph)
+    def load_game_options(self, game_name):
+        try:
+            game_state = self.load_game_data_from_zip(game_name)
+            if game_state:
+                print(f"Loaded game state from {game_name}: {game_state}")
+                main_character_data = game_state.get('main_character')
+                if main_character_data:
+                    main_character_info = extract_main_character_info(main_character_data)
+                    if main_character_info:
+                        first_name = main_character_info['first_name']
+                        last_name = main_character_info['last_name']
+                        age = main_character_info['age']
+                        traits = main_character_info['traits']
 
-        # Print statement for debugging
-        self.print_current_widget_data()
+                        self.character_label.text = f"{first_name} {last_name}"
+                        self.age_label.text = f"Age: {age}"
+                        self.bar_graph.update_characteristics(traits)
+                        print(f"Updated UI elements: character_label={self.character_label.text}, age_label={self.age_label.text}")
+                        print("UI elements updated successfully.")
+                    else:
+                        print(f"No valid main character info extracted from {game_name}.")
+                else:
+                    print(f"Error: 'main_character' key not found in game data for {game_name}.")
+            else:
+                print(f"Failed to load game state from {game_name}.")
+        except Exception as e:
+            print(f"Error occurred while loading game options: {str(e)}")
+
+    def load_game(self, game_name=None):
+        try:
+            if game_name:
+                game_state = self.load_game_data_from_zip(game_name)
+                if game_state:
+                    print(f"Loaded game state from {game_name}: {game_state}")
+                    main_character_data = game_state.get('main_character')
+                    if main_character_data:
+                        main_character_info = extract_main_character_info(main_character_data)
+                        if main_character_info:
+                            first_name = main_character_info['first_name']
+                            last_name = main_character_info['last_name']
+                            age = main_character_info['age']
+                            traits = main_character_info['traits']
+
+                            self.character_label.text = f"{first_name} {last_name}"
+                            self.age_label.text = f"Age: {age}"
+                            self.bar_graph.update_characteristics(traits)
+                            print(f"Updated UI elements: character_label={self.character_label.text}, age_label={self.age_label.text}")
+                            print("UI elements updated successfully.")
+                        else:
+                            print(f"No valid main character info extracted from {game_name}.")
+                    else:
+                        print(f"Error: 'main_character' key not found in game data for {game_name}.")
+                else:
+                    print(f"Failed to load game state from {game_name}.")
+            else:
+                self.next_pressed()
+        except Exception as e:
+            print(f"Error occurred while loading game: {str(e)}")
+
+    def load_game_data_from_zip(self, game_name):
+        saved_games_dir = os.path.join(os.getcwd(), 'run', 'saved_games')
+        zip_file_path = os.path.join(saved_games_dir, game_name)
+        game_state = {}
+        if os.path.exists(zip_file_path):
+            with zipfile.ZipFile(zip_file_path, 'r') as zipf:
+                for file in zipf.namelist():
+                    with zipf.open(file) as f:
+                        data = json.load(f)
+                        if file == 'main_character.json':
+                            game_state['main_character'] = data
+                        else:
+                            game_state[file] = data
+        return game_state
 
     def find_saved_games(self):
-        saved_games = [filename for filename in os.listdir(os.path.join(os.getcwd(), 'run', 'saved_games')) if filename.endswith(".zip")]
+        saved_games_dir = os.path.join(os.getcwd(), 'run', 'saved_games')
+        saved_games = [filename for filename in os.listdir(saved_games_dir) if filename.endswith(".zip")]
         return saved_games
 
-    def get_game_display_name(self, game_name):
-        # Assuming game_name format is "firstname.lastname.age.zip"
-        parts = game_name.split('.')
-        if len(parts) >= 3:
-            return f"{parts[0]} {parts[1]} (Age: {parts[2]})"
-        return game_name
+    def extract_main_character_info(data):
+        """
+        Extracts main character information from the loaded game state data.
 
+        Args:
+            data (dict): Loaded game state data.
 
-if __name__ == "__main__":
-    from kivy.app import App
+        Returns:
+            dict: Main character information.
 
-    class TestApp(App):
-        def build(self):
-            return WelcomeScreen()
+        """
+        try:
+            first_name = data['first_name']
+            last_name = data['last_name']
+            age = data['age']
+            traits = data.get('traits', {})
+            return {
+                'first_name': first_name,
+                'last_name': last_name,
+                'age': age,
+                'traits': traits
+            }
+        except KeyError:
+            print(f"Error: 'main_character' key not found in game data.")
+            return None
 
-    TestApp().run()

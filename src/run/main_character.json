@@ -1,15 +1,15 @@
 {
-    "id": "47b0991c-b34f-4681-9a17-8fa1ad863fa7",
-    "first_name": "Aleece",
-    "last_name": "Edwards",
-    "age": 19,
+    "id": "c63d7d52-affc-4f39-83dc-6f059eb8bab8",
+    "first_name": "Sinclair",
+    "last_name": "Hanson",
+    "age": 13,
     "traits": {
-        "Health": 19,
-        "Smarts": 92,
-        "Looks": 3,
-        "Happiness": 42
+        "Health": 64,
+        "Smarts": 75,
+        "Looks": 96,
+        "Happiness": 33
     },
-    "money": 5898,
+    "money": 8891,
     "property": "None",
     "relationship": []
 }
